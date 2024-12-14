@@ -19,7 +19,6 @@ export function ChatScreen() {
     const scrollViewRef = useRef<ScrollView>(null);
     const [waitFlag, setWaitFlag] = React.useState(false);
     const [text, onChangeText] = React.useState('');
-    const [slmModel, setSLMModel] = React.useState<LlamaContext | null>(null);
     const [message, setMessage] = React.useState<MessageType[]>([
         {
             role: "assistant",
@@ -33,10 +32,6 @@ export function ChatScreen() {
         rag_top_k,
         rag_top_n,
         model,
-        // set_model,
-        n_ctx,
-        n_gpu_layers,
-        flash_attn,
         stop,
         n_predict,
         n_probs,
@@ -60,39 +55,12 @@ export function ChatScreen() {
         } = useContext(AppContext);
 
     React.useEffect(() => {
-        const setupModel = async () => {
-            try {
-                // set_model(`file://${RNFS.DocumentDirectoryPath}/qwen2.5-0.5b-instruct-q4_0.gguf`);
-                // await HuggingFaceModelDownloader("Qwen/Qwen2.5-0.5B-Instruct-GGUF", "qwen2.5-0.5b-instruct-q4_0.gguf");
-
-
-                // console.log("Downloading SLM model...");
-                const llama_context = await initializeLlama({
-                    model: `file://${RNFS.DocumentDirectoryPath}/qwen2.5-0.5b-instruct-q8_0.gguf`,
-                    use_mlock: true,
-                    n_ctx: n_ctx,
-                    n_gpu_layers: n_gpu_layers,
-                    flash_attn: flash_attn
-                });
-
-                setSLMModel(llama_context);
-                
-            } catch (err) {
-                console.error("Error initializing model:", err);
-                throw err;
-            }
-        };
-
-        setupModel();
-    }, []);
-
-    React.useEffect(() => {
         // Scroll to the bottom when messages change
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, [message]);
 
     // console.log("Llama model established.");
-    if (!slmModel) {
+    if (!model) {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6' }}>
                 <Text
@@ -104,13 +72,13 @@ export function ChatScreen() {
                         marginLeft: 10,
                         marginRight: 10,
                         textAlign: 'center'
-                      }}>Initializing Model...</Text>
+                      }}>Awaiting for a model...</Text>
             </View>
         );
     }
 
     const completionParams = {
-        "model": slmModel,
+        "model": model,
         "stop": stop,
         "n_predict": n_predict,
         "n_probs": n_probs,

@@ -12,7 +12,7 @@ import { AppContextProvider } from './state/state';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChatButtonWithIcon } from './components/button';
 import { menuButtonStyle } from './components/button/style';
-import { getModelFileAndSize, getModelLists, getDownloadedModels } from './components/model/hfmodel';
+import { DownloadedScreen } from './screen/downloaded';
 
 
 function prompt() {
@@ -23,9 +23,7 @@ function prompt() {
 
 function downloaded() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6' }}>
-    <Text>Model Screen</Text>
-    </View>
+    <DownloadedScreen />
 );
 }
 
@@ -41,13 +39,17 @@ const model = createMaterialTopTabNavigator({
     Explore: explore,
   },
   screenOptions: {
+    swipeEnabled: false,
+    animationEnabled: false,
     tabBarPressColor: '#FAF0E6',
     tabBarStyle: { backgroundColor: "#FAF0E6"},
-    tabBarLabelStyle: {color: '#5C5470', fontSize: 20, fontWeight: 'bold'},
+    tabBarLabelStyle: {fontSize: 20, fontWeight: 'bold'},
     tabBarIndicatorStyle: {
       backgroundColor: "#DBAFA0",
-      height: 5
-  },
+      height: 0
+    },
+    tabBarInactiveTintColor: '#D8D9DA',
+    tabBarActiveTintColor: '#5C5470',
   }
 });
 
@@ -128,6 +130,7 @@ const NavTabs = createMaterialTopTabNavigator({
       ({ route }) => ({
           // tabBarLabelStyle: {color: '#61677A', fontSize: 20},
           animationEnabled: false,
+          swipeEnabled: false,
           tabBarItemStyle: { height: 60},
           tabBarPressColor: '#E6DDC4',
           tabBarStyle: { backgroundColor: "#E6DDC4"},

@@ -383,8 +383,8 @@ export const linkButtonStyle: [CButtonStyle, CButtonStyle] = [
     },
     btn: {
       backgroundColor: "#E8BCB9",
-      width: 20,
-      height: 20,
+      width: 30,
+      height: 30,
       borderRadius: 5,
       justifyContent: 'center',
       alignItems: 'center'
@@ -405,8 +405,8 @@ export const linkButtonStyle: [CButtonStyle, CButtonStyle] = [
     },
     btn: {
       backgroundColor: "#E8BCB9",
-      width: 20,
-      height: 20,
+      width: 30,
+      height: 30,
       borderRadius: 5,
       justifyContent: 'center',
       alignItems: 'center'

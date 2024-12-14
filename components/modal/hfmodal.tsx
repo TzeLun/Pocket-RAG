@@ -1,10 +1,11 @@
 import {View, Modal, Text, StyleProp, ViewStyle, TextStyle, ScrollView} from 'react-native';
-import React from "react";
+import React, {useContext} from "react";
 import RNFS from 'react-native-fs';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { ChatButtonWithIcon } from "../button";
 import { hfModelProp, hfModelFileProp, FS_FILEPATH, downloadModel } from "..//model/hfmodel";
 import { closeButtonStyle, linkButtonStyle } from '../button/style';
+import { AppContext } from '../../state/state';
 
 interface HFPopUpProp {
     hfmodel: hfModelProp;
@@ -37,7 +38,6 @@ const HFModelBlockStyle: HFModelBlockStyleProp = {
 interface HFModelBlocksInput {
     modelFile: hfModelFileProp;
     modelID: string;
-
 }
 
 const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
@@ -46,6 +46,8 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
     const [isDownloading, setIsDownloading] = React.useState(false);
     const [isComplete, setIsComplete] = React.useState(false);
     const [isFail, setIsFail] = React.useState(false);
+
+    const {setFSChange, selected, setSelected, set_model} = useContext(AppContext);
 
     // check if exist when not downloading
     async function checkExist() {
@@ -61,6 +63,7 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
         } catch (error) {
             console.error('Error removing file:', error);
         }
+        setFSChange(true); // notify FS change when a file is removed
     }
 
     // handles state during a download error
@@ -71,7 +74,14 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
             setProgress(0);
             setIsComplete(false);
             setIsFail(false);
+            setFSChange(true); // will remove if inert
         }
+    }
+
+    // Offload model
+    function offloadModel() {
+        set_model(null);
+        setSelected('');
     }
 
     // render download icon if not exist, and trash icon otherwise
@@ -82,7 +92,7 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
                 return (
                     <View style={HFModelBlockStyle.icon_div}>
                         <ChatButtonWithIcon
-                        icon={<FontAwesome6 name='download' size={14} color={'#61677A'} iconStyle="solid" />}
+                        icon={<FontAwesome6 name='download' size={20} color={'#61677A'} iconStyle="solid" />}
                         title='Download'
                         style={linkButtonStyle}
                         showText={false}
@@ -95,20 +105,36 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
                 );
             }
         } else {
-            return (
-                <View style={HFModelBlockStyle.icon_div}>
-                    <ChatButtonWithIcon
-                        icon={<FontAwesome6 name='trash-can' size={14} color={'#61677A'} iconStyle="solid" />}
-                        title='Delete'
-                        style={linkButtonStyle}
-                        showText={false}
-                        onPress={() => {
-                            removeFile();
-                            setIsExist(false);
-                        }}
-                    />
-                </View>
-            );
+            if (modelFile.filename === selected) {
+                return (
+                    <View style={HFModelBlockStyle.icon_div}>
+                        <ChatButtonWithIcon
+                            icon={<FontAwesome6 name='ban' size={20} color={'#AE445A'} iconStyle="solid" />}
+                            title='Offload'
+                            style={linkButtonStyle}
+                            showText={false}
+                            onPress={() => {
+                                offloadModel();
+                            }}
+                        />
+                    </View>
+                );
+            } else {
+                return (
+                    <View style={HFModelBlockStyle.icon_div}>
+                        <ChatButtonWithIcon
+                            icon={<FontAwesome6 name='trash-can' size={20} color={'#61677A'} iconStyle="solid" />}
+                            title='Delete'
+                            style={linkButtonStyle}
+                            showText={false}
+                            onPress={() => {
+                                removeFile();
+                                setIsExist(false);
+                            }}
+                        />
+                    </View>
+                );
+            }
         }
     }
 
@@ -116,19 +142,20 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
     function renderDownloadProgressBar() {
         if (isDownloading) {
 
-            if (isComplete) {
-                setIsExist(true);
-                setIsDownloading(false);
-                setProgress(0);
-                setIsComplete(false);
-            }
+            // if (isComplete) {
+            //     setIsExist(true);
+            //     setIsDownloading(false);
+            //     setProgress(0);
+            //     setIsComplete(false);
+            //     setFSChange(true); // if download successful, notify FS change
+            // }
 
             // console.log(progress);
             return (
                 <View style={{flexDirection: 'row', width: '100%', padding: 10, justifyContent: "center", alignItems: 'center' }}>
                     {/* Download Icon */}
                     <View style={HFModelBlockStyle.icon_div}>
-                        <FontAwesome6 name='download' size={14} color={'#61677A'} iconStyle="solid" />
+                        <FontAwesome6 name='download' size={20} color={'#61677A'} iconStyle="solid" />
                     </View>
                     {/* Progress Bar */}
                     <View style={{width: "70%", height: 5, borderRadius: 2, backgroundColor: '#352F44', marginTop: 10}}>
@@ -139,15 +166,30 @@ const HFModelBlocks = ({modelID, modelFile}: HFModelBlocksInput) => {
         }
     }
 
-    checkExist();
-    checkFail();
+    React.useEffect(() => {
+        checkExist();
+    }, [isDownloading]);
+
+    React.useEffect(() => {
+        checkFail();
+    }, [isFail]);
+
+    React.useEffect(() => {
+        if (isComplete) {
+            setIsExist(true);
+            setIsDownloading(false);
+            setProgress(0);
+            setIsComplete(false);
+            setFSChange(true); // if download successful, notify FS change
+        }
+    }, [isComplete]);
 
     return (
         <View style={HFModelBlockStyle.main_div}>
         <Text style={HFModelBlockStyle.header}>{modelFile.filename}</Text>
         <View style={HFModelBlockStyle.sec_div}>
             <View style={HFModelBlockStyle.icon_div}>
-                <FontAwesome6 name='memory' size={14} color={'#61677A'} iconStyle="solid" />
+                <FontAwesome6 name='memory' size={20} color={'#61677A'} iconStyle="solid" />
                 <Text style={HFModelBlockStyle.labels}>{(modelFile.size / 1000000000).toFixed(2)} GB</Text>
             </View>
             {renderButtons()}

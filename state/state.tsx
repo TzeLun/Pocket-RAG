@@ -61,6 +61,14 @@ export interface AppContextProp {
     set_microstat_tau: React.Dispatch<React.SetStateAction<number>>;
     set_microstat_eta: React.Dispatch<React.SetStateAction<number>>;
     set_seed: React.Dispatch<React.SetStateAction<number>>;
+
+    // monitor any changes in the filesystem. Mainly model downloads or removal
+    fsChange: boolean;
+    setFSChange: React.Dispatch<React.SetStateAction<boolean>>;
+
+    // monitor the current model in use
+    selected: string,
+    setSelected: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const defaultState: AppContextProp = {
@@ -118,6 +126,11 @@ export const defaultState: AppContextProp = {
     set_microstat_tau: () => {},
     set_microstat_eta: () => {},
     set_seed: () => {},
+    
+    fsChange: false,
+    setFSChange: () => {},
+    selected: '',
+    setSelected: () => {}
 }
 
 export const AppContext = createContext<AppContextProp>(defaultState);
@@ -152,7 +165,8 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
     const [system_prompt, set_system_prompt] = React.useState<string>(
         "Given the question and a list of relevant context, answer the question. Keep it concise and only use materials from the context in formulating the answer."
     );
-
+    const [fsChange, setFSChange] = React.useState(false);
+    const [selected, setSelected] = React.useState('');
 
     return (
         <AppContext.Provider value= {{
@@ -210,6 +224,10 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
             set_microstat_tau,
             set_microstat_eta,
             set_seed,
+            fsChange,
+            setFSChange,
+            selected,
+            setSelected
         }}>
             {children}
         </AppContext.Provider>
