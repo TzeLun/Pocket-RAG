@@ -1,118 +1,180 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { createStaticNavigation, StaticParamList, useNavigation } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import { DatabaseScreen } from './screen/database';
+import { ChatScreen } from './screen/chat';
+import { PromptScreen } from './screen/prompt';
+import { ConfigScreen } from './screen/config';
+import { ExploreScreen } from './screen/explore';
+import { AppContextProvider } from './state/state';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ChatButtonWithIcon } from './components/button';
+import { menuButtonStyle } from './components/button/style';
+import { getModelFileAndSize, getModelLists, getDownloadedModels } from './components/model/hfmodel';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function prompt() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <PromptScreen />
+  );
+}
+
+function downloaded() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6' }}>
+    <Text>Model Screen</Text>
+    </View>
+);
+}
+
+function explore() {
+  return (
+    <ExploreScreen />
+);
+}
+
+const model = createMaterialTopTabNavigator({
+  screens: {
+    Downloaded: downloaded,
+    Explore: explore,
+  },
+  screenOptions: {
+    tabBarPressColor: '#FAF0E6',
+    tabBarStyle: { backgroundColor: "#FAF0E6"},
+    tabBarLabelStyle: {color: '#5C5470', fontSize: 20, fontWeight: 'bold'},
+    tabBarIndicatorStyle: {
+      backgroundColor: "#DBAFA0",
+      height: 5
+  },
+  }
+});
+
+function config() {
+  return (
+    <ConfigScreen />
+);
+}
+
+function main() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  return (
+    <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6' }}>
+      <ScrollView>
+        <ChatButtonWithIcon 
+            icon={<FontAwesome6 name='terminal' size={30} color={'#61677A'} iconStyle="solid" />}
+            title='System Prompt'
+            showText={true}
+            style={menuButtonStyle}
+            onPress={() => navigation.navigate('Prompt')} />
+        <ChatButtonWithIcon
+            icon={<FontAwesome6 name='brain' size={30} color={'#61677A'} iconStyle="solid" />}
+            title='Model'
+            showText={true}
+            style={menuButtonStyle}
+            onPress={() => navigation.navigate('Model')} />
+        <ChatButtonWithIcon
+            icon={<FontAwesome6 name='sliders' size={30} color={'#61677A'} iconStyle="solid" />}
+            title='Config'
+            showText={true}
+            style={menuButtonStyle}
+            onPress={() => navigation.navigate('Config')} />
+      </ScrollView>
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+const chat = () => {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <ChatScreen />
   );
-}
+};
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+const database = () => {
+  return (
+    <DatabaseScreen />
+  );
+};
+
+const menuStack = createNativeStackNavigator(
+  {
+      initialRouteName: 'Main',
+      screens: {
+          Main: main,
+          Prompt: prompt,
+          Model: model, // replace with the tab navi stack
+          Config: config
+      },
+      screenOptions: {
+        title: "",
+        headerStyle: {backgroundColor: "#FAF0E6", color: "#61677A" },
+        headerShadowVisible: false,
+      }
+  }
+);
+
+type RootStackParamList = StaticParamList<typeof menuStack>;
+
+const NavTabs = createMaterialTopTabNavigator({
+  screens: {
+    Menu: {
+      screen: menuStack,
+    },
+    Chat: chat,
+    Database: database,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  screenOptions: 
+      ({ route }) => ({
+          // tabBarLabelStyle: {color: '#61677A', fontSize: 20},
+          animationEnabled: false,
+          tabBarItemStyle: { height: 60},
+          tabBarPressColor: '#E6DDC4',
+          tabBarStyle: { backgroundColor: "#E6DDC4"},
+          tabBarIndicatorStyle: {
+              backgroundColor: "#FAF0E6",
+              height: 60
+          },
+          tabBarShowIcon: true,
+          tabBarShowLabel: false,
+          tabBarIcon: ({color, focused}) => {
+            const icons = {
+              Menu: "bars",
+              Chat: "message",
+              Database: "database"
+            };
+
+            const iconValue = icons[route.name as keyof typeof icons];
+            if (iconValue === "bars") {
+              return (
+                  <FontAwesome6 name={'bars'} color={'#61677A'} size={30} iconStyle="solid"/>
+              );
+            } else if (iconValue === "message") {
+              return (
+                  <FontAwesome6 name={'message'} color={'#61677A'} size={30} iconStyle="solid"/>
+              );
+            } else if (iconValue === "database") {
+              return (
+                  <FontAwesome6 name={'database'} color={'#61677A'} size={30} iconStyle="solid"/>
+              );
+            } else {
+              return (
+                  <FontAwesome6 name={'question'} color={'#61677A'} size={30} iconStyle="solid"/>
+              );
+            }
+          },
+          // tabBarInactiveTintColor: '#B9B4C7',
+          // tabBarActiveTintColor: '#61677A',
+        }),
 });
 
-export default App;
+const Navigation = createStaticNavigation(NavTabs);
+
+export default function App() {
+
+    return (
+      <AppContextProvider>
+        <Navigation />
+      </AppContextProvider>
+    );
+}
