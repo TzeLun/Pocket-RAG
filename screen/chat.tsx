@@ -1,9 +1,7 @@
 import axios from "axios"
 import {TextArea} from "../components/textbox/textbox";
 import React, {useContext, useRef} from "react";
-import { invoke, initializeLlama } from "../components/model/llama-rn";
-import { LlamaContext } from 'llama.rn';
-import RNFS from 'react-native-fs';
+import { invoke } from "../components/model/llama-rn";
 import { Text, View, ScrollView, Image } from "react-native";
 import { chatAreaStyle } from "../components/textbox/style";
 import { ChatButtonWithIcon } from "../components/button";
@@ -107,75 +105,88 @@ export function ChatScreen() {
     }
 
     async function ragInference() {
-        try {
-          const response = await axios.post(`${endpoint}`, {
-            "question": text,
-            "top_k": rag_top_k,
-            "top_n": rag_top_n
-          });
-          const user_prompt = `Question: ${text}\n\n\nContext: ${response.data['context']}`;
-          setSpeedEval('');
-          setMessage((prevMsg) => [
-            ...prevMsg,
-            { role: "user", content: text}
-          ]);
-          onChangeText('');
-          console.log(`Retrieved context:\n\n${response.data['context']}`)
-          if (!completionParams.messages) { 
-            completionParams.messages = [
-              {
-                role: "system",
-                content: system_prompt
-              },
-            ]
-          }
-          
-          completionParams.messages.push(
-            {
-              role: "user",
-              content: user_prompt
+        if (endpoint != null) {
+            try {
+                setSpeedEval('');
+                setMessage((prevMsg) => [
+                    ...prevMsg,
+                    { role: "user", content: text}
+                ]);
+                onChangeText('');
+                const response = await axios.post(`${endpoint}`, {
+                    "question": text,
+                    "top_k": rag_top_k,
+                    "top_n": rag_top_n
+                });
+                const user_prompt = `Question: ${text}\n\n\nContext: ${response.data['context']}`;
+                console.log(`Retrieved context:\n\n${response.data['context']}`)
+                if (!completionParams.messages) { 
+                    completionParams.messages = [
+                    {
+                        role: "system",
+                        content: system_prompt
+                    },
+                    ]
+                }
+                
+                completionParams.messages.push(
+                    {
+                    role: "user",
+                    content: user_prompt
+                    }
+                )
+
+                const streamCallback = (data: any) => {
+                        setTimeout(() => {
+                            setMessage((prevMsg) => {
+                                const lastMessage = prevMsg[prevMsg.length - 1];
+                                // console.log(data.token);
+                                if (lastMessage?.role === 'assistant') {
+                                    return [
+                                        ...prevMsg.slice(0, -1),
+                                        { ...lastMessage, content: lastMessage.content + data.token },
+                                    ];
+                                }
+
+                                return [...prevMsg, {role: 'assistant', content: data.token}];
+                                
+                            });
+                        }, 0);
+                };
+
+                const slm_response = await invoke(completionParams, streamCallback);
+
+                console.log(`SLM Response: ${slm_response.text}\n`);
+                console.log(`
+                    Input prompt tokens: ${slm_response.timings.prompt_n} tokens\n
+                    Prompt eval time: ${slm_response.timings.prompt_ms / 1000}s\n
+                    Prompt eval rate: ${slm_response.timings.prompt_per_second} token/s\n
+                    Output tokens: ${slm_response.timings.predicted_n} tokens\n
+                    Prediction time: ${slm_response.timings.predicted_ms / 1000}s\n
+                    Token generation: ${slm_response.timings.predicted_per_second} token/s
+                `);
+                setSpeedEval(`Prompt: ${slm_response.timings.prompt_n} tokens, Prediction: ${slm_response.timings.predicted_n} tokens.\nPrompt rate: ${slm_response.timings.prompt_per_second.toFixed(2)} token/s, Prediction rate: ${slm_response.timings.predicted_per_second.toFixed(2)} token/s`);
+                setWaitFlag(false);
+            } catch (error) {
+                console.log(`Error fetching context from ${endpoint}`, error);
+                //   throw error; // Re-throw the error for the caller to handle
+                setMessage((prevMsg) => [
+                    ...prevMsg,
+                    { role: "assistant", content: `It seems there is an error during inference. Error Message: ${error}`}
+                ]);
+                setWaitFlag(false);
             }
-          )
-
-          const streamCallback = (data: any) => {
-                setTimeout(() => {
-                    setMessage((prevMsg) => {
-                        const lastMessage = prevMsg[prevMsg.length - 1];
-                        // console.log(data.token);
-                        if (lastMessage?.role === 'assistant') {
-                            return [
-                                ...prevMsg.slice(0, -1),
-                                { ...lastMessage, content: lastMessage.content + data.token },
-                            ];
-                        }
-
-                        return [...prevMsg, {role: 'assistant', content: data.token}];
-                        
-                    });
-                }, 0);
-          };
-
-          const slm_response = await invoke(completionParams, streamCallback);
-
-          console.log(`SLM Response: ${slm_response.text}\n`);
-          console.log(`
-            Input prompt tokens: ${slm_response.timings.prompt_n} tokens\n
-            Prompt eval time: ${slm_response.timings.prompt_ms / 1000}s\n
-            Prompt eval rate: ${slm_response.timings.prompt_per_second} token/s\n
-            Output tokens: ${slm_response.timings.predicted_n} tokens\n
-            Prediction time: ${slm_response.timings.predicted_ms / 1000}s\n
-            Token generation: ${slm_response.timings.predicted_per_second} token/s
-          `);
-          setSpeedEval(`Prompt: ${slm_response.timings.prompt_n} tokens, Prediction: ${slm_response.timings.predicted_n} tokens.\nPrompt rate: ${slm_response.timings.prompt_per_second.toFixed(2)} token/s, Prediction rate: ${slm_response.timings.predicted_per_second.toFixed(2)} token/s`);
-          setWaitFlag(false);
-        } catch (error) {
-          console.log(`Error fetching context from ${endpoint}`, error);
-          //   throw error; // Re-throw the error for the caller to handle
-          setMessage((prevMsg) => [
-            ...prevMsg,
-            { role: "assistant", content: `It seems there is an error during inference. Error Message: ${error}`}
-          ]);
-          setWaitFlag(false);
+        } else {
+            setMessage((prevMsg) => [
+                ...prevMsg,
+                { role: "user", content: text}
+            ]);
+            onChangeText('');
+            setMessage((prevMsg) => [
+                ...prevMsg,
+                { role: "assistant", content: `There is an error during inference. It seems your RAG API endpoint is still undefined.`}
+            ]);
+            setWaitFlag(false);
         }
       };
 
