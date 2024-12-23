@@ -1,5 +1,6 @@
 import React, { createContext } from 'react';
 import { LlamaContext } from 'llama.rn';
+import { hfModelDownloadStateManager } from '../components/model/hfmodel';
 
 export interface AppContextProp {
     // For RAG API endpoint
@@ -69,6 +70,10 @@ export interface AppContextProp {
     // monitor the current model in use
     selected: string,
     setSelected: React.Dispatch<React.SetStateAction<string>>;
+
+    // monitor the download states globally
+    downloadManager: hfModelDownloadStateManager;
+    setDownloadManager: React.Dispatch<React.SetStateAction<hfModelDownloadStateManager>>;
 }
 
 export const defaultState: AppContextProp = {
@@ -130,7 +135,10 @@ export const defaultState: AppContextProp = {
     fsChange: false,
     setFSChange: () => {},
     selected: '',
-    setSelected: () => {}
+    setSelected: () => {},
+
+    downloadManager: {},
+    setDownloadManager: () => {}
 }
 
 export const AppContext = createContext<AppContextProp>(defaultState);
@@ -167,6 +175,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
     );
     const [fsChange, setFSChange] = React.useState(false);
     const [selected, setSelected] = React.useState('');
+    const [downloadManager, setDownloadManager] = React.useState({});
 
     return (
         <AppContext.Provider value= {{
@@ -227,7 +236,9 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
             fsChange,
             setFSChange,
             selected,
-            setSelected
+            setSelected,
+            downloadManager,
+            setDownloadManager
         }}>
             {children}
         </AppContext.Provider>

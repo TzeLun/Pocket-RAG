@@ -36,6 +36,7 @@ export interface hfModelFileProp {
   size: number; // in Bytes, divide by 1 x 10^9 for GB
 }
 
+// a model family with a catalogue of available gguf files.
 export interface hfModelProp {
   id: string;
   likes: number;
@@ -43,6 +44,17 @@ export interface hfModelProp {
   link: string;
   files: hfModelFileProp[];
 }
+
+// globally track the download state of a model.
+export interface hfModelDownloadState {
+  progress: number;
+  isComplete: boolean;
+  isFail: boolean;
+  // promise: () => Promise<void>;  // here uses the structure of downloadModel
+}
+
+// an array of download states.
+export type hfModelDownloadStateManager = {[key: string]: hfModelDownloadState};
 
 // return the gguf files and their sizes given a model ID repo
 export async function getModelFileAndSize(modelID: string): Promise<hfModelFileProp[]> {
