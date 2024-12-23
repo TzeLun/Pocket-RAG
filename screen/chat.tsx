@@ -168,7 +168,7 @@ export function ChatScreen() {
                 setSpeedEval(`Prompt: ${slm_response.timings.prompt_n} tokens, Prediction: ${slm_response.timings.predicted_n} tokens.\nPrompt rate: ${slm_response.timings.prompt_per_second.toFixed(2)} token/s, Prediction rate: ${slm_response.timings.predicted_per_second.toFixed(2)} token/s`);
                 setWaitFlag(false);
             } catch (error) {
-                console.log(`Error fetching context from ${endpoint}`, error);
+                console.log(`Error fetching context from ${endpoint}`);
                 //   throw error; // Re-throw the error for the caller to handle
                 setMessage((prevMsg) => [
                     ...prevMsg,
