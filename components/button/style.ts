@@ -61,7 +61,7 @@ export const SliderBarStyle: sliderStyle = {
     alignItems: 'center'
   },
   slider: {
-    width: 220,
+    width: 200,
     height: 40,
     margin: 10,
     marginBottom: 0

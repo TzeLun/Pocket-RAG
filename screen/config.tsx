@@ -174,8 +174,7 @@ export function ConfigScreen() {
                             setValue={set_top_k}
                             minimumValue={1}
                             maximumValue={128}
-                            step={1}
-                            handleFloat={false} />
+                            step={1} />
                     </View>
                 </View>
                 {/* {Top P} */}
@@ -247,8 +246,7 @@ export function ConfigScreen() {
                             setValue={set_penalty_last_n}
                             minimumValue={0}
                             maximumValue={256}
-                            step={1}
-                            handleFloat={false} />
+                            step={1} />
                     </View>
                 </View>
                 {/* {Penalty repeat} */}
@@ -296,8 +294,7 @@ export function ConfigScreen() {
                             setValue={set_microstat_tau}
                             minimumValue={0}
                             maximumValue={10}
-                            step={1}
-                            handleFloat={false} />
+                            step={1} />
                     </View>
                 </View>
                 {/* {Microstat eta} */}

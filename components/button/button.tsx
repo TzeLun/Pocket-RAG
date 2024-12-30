@@ -141,73 +141,69 @@ export const SliderBar = ({
     maximumValue,
     step,
     style = SliderBarStyle,
-    handleFloat = true
 }: SliderBarProp) => {
+    const [displayValue, setDisplayValue] = React.useState<number>(value);
 
-    const [displayValue, setDisplayValue] = React.useState(value);
-    // const maxIntVal = (maximumValue - minimumValue) / step;
-
-    // const to_slider_value = (actual_value: number): number => {
-    //     return parseInt((actual_value * maxIntVal).toFixed(0));
-    //     // return (actual_value * maxIntVal);
-    // }
-
-    // const to_actual_value = (slider_value: number): number => {
-    //     return parseFloat((slider_value / maxIntVal * (maximumValue - minimumValue)).toFixed(2));
-    // }
-
-    if (handleFloat) {
-        return (
-            // <View style={style.div}>
-            //     <Slider
-            //         style={style.slider}
-            //         minimumValue={0}
-            //         maximumValue={maxIntVal}
-            //         step={1} // Adjust slider steps
-            //         value={to_slider_value(value)} // Initial value
-            //         onValueChange={(val) => setValue(to_actual_value(val))} // Update state on slide
-            //         minimumTrackTintColor="#BB8493" // Color for the filled track
-            //         maximumTrackTintColor="#B9B4C7" // Color for the unfilled track
-            //         thumbTintColor="#704264" // Thumb (circle) color
-            //     />
-            //     <Text style={style.text}>{value}</Text>
-            // </View>
-            <View style={style.div}>
-                <Slider
-                    style={style.slider}
-                    minimumValue={minimumValue}
-                    maximumValue={maximumValue}
-                    step={step} // Adjust slider steps
-                    value={value} // Initial value
-                    onSlidingComplete={(val) => {setValue(parseFloat(val.toFixed(2)))}} // Update state on slide
-                    onValueChange={(val) => {setDisplayValue(parseFloat(val.toFixed(2)))}}
-                    minimumTrackTintColor="#BB8493" // Color for the filled track
-                    maximumTrackTintColor="#B9B4C7" // Color for the unfilled track
-                    thumbTintColor="#704264" // Thumb (circle) color
-                />
-                <Text style={style.text}>{displayValue}</Text>
-            </View>
-        );
-    } else {
-        return (
-            <View style={style.div}>
-                <Slider
-                    style={style.slider}
-                    minimumValue={minimumValue}
-                    maximumValue={maximumValue}
-                    step={step} // Adjust slider steps
-                    value={value} // Initial value
-                    onSlidingComplete={setValue}
-                    onValueChange={setDisplayValue} // Update state on slide
-                    minimumTrackTintColor="#BB8493" // Color for the filled track
-                    maximumTrackTintColor="#B9B4C7" // Color for the unfilled track
-                    thumbTintColor="#704264" // Thumb (circle) color
-                />
-                <Text style={style.text}>{displayValue}</Text>
-            </View>
-        );
+    function handleSlidingComplete(val: number) {
+        setValue(val);
+        // setDisplayValue(val);
     }
 
+    React.useEffect(() => {
+        setDisplayValue(value);
+    }, [value]);
+
+    return (
+        <View style={style.div}>
+            <Slider
+                style={style.slider}
+                minimumValue={minimumValue}
+                maximumValue={maximumValue}
+                step={step} // Adjust slider steps
+                value={value} // Initial value
+                onSlidingComplete={(val) => {
+                    handleSlidingComplete(val);
+                }} // Update state on slide
+                onValueChange={(val) => {
+                    setDisplayValue(val);
+                }}
+                minimumTrackTintColor="#BB8493" // Color for the filled track
+                maximumTrackTintColor="#B9B4C7" // Color for the unfilled track
+                thumbTintColor="#704264" // Thumb (circle) color
+            />
+            <Text style={style.text}>
+                {Number.isInteger(step)
+                ? Math.round(displayValue).toString()
+                : (displayValue).toFixed(2)}
+            </Text>
+        </View>
+    );
 };
 
 
+export interface SelectionButtonProp {
+    options: string[] | number[];
+    setValue: React.Dispatch<React.SetStateAction<number | string>>;
+}
+
+export const SelectionButton = ({options, setValue}: SelectionButtonProp) => {
+    const [onState, setOnState] = React.useState<boolean[]>(options.map((_, index) => index === 0));
+    return (
+        <View style={{flexDirection: 'row'}}>
+        {options.map((option, index) => (
+            <Pressable 
+                onPress={() => {
+                    setValue(option);
+                    setOnState((current) => {
+                        const update = current.map((_, idx) => idx === index);
+                        return (update);
+                    });
+                }
+                }
+            >
+                <Text></Text>
+            </Pressable>
+        ))}
+    </View>
+    );
+}

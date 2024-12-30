@@ -113,6 +113,7 @@ export function ChatScreen() {
                     { role: "user", content: text}
                 ]);
                 onChangeText('');
+
                 const response = await axios.post(`${endpoint}`, {
                     "question": text,
                     "top_k": rag_top_k,
@@ -155,7 +156,6 @@ export function ChatScreen() {
                 };
 
                 const slm_response = await invoke(completionParams, streamCallback);
-
                 console.log(`SLM Response: ${slm_response.text}\n`);
                 console.log(`
                     Input prompt tokens: ${slm_response.timings.prompt_n} tokens\n
@@ -167,12 +167,26 @@ export function ChatScreen() {
                 `);
                 setSpeedEval(`Prompt: ${slm_response.timings.prompt_n} tokens, Prediction: ${slm_response.timings.predicted_n} tokens.\nPrompt rate: ${slm_response.timings.prompt_per_second.toFixed(2)} token/s, Prediction rate: ${slm_response.timings.predicted_per_second.toFixed(2)} token/s`);
                 setWaitFlag(false);
-            } catch (error) {
+            } catch(error) {
                 console.log(`Error fetching context from ${endpoint}`);
-                //   throw error; // Re-throw the error for the caller to handle
+                let errorMessage = "An unknown error occurred during inference.";
+                if (axios.isAxiosError(error)) {
+                    if (error.response) {
+                        // Server responded with a status code outside the range of 2xx
+                        errorMessage = `Server error: ${error.response.status} ${error.response.statusText}`;
+                    } else if (error.request) {
+                        // Request was made but no response was received
+                        errorMessage = "No response received from the server. Please check your network or endpoint.";
+                    } else {
+                        // Something happened in setting up the request
+                        errorMessage = error.message;
+                    }
+                } else if (error instanceof Error) {
+                    errorMessage = error.message; // Generic JavaScript error
+                }
                 setMessage((prevMsg) => [
                     ...prevMsg,
-                    { role: "assistant", content: `It seems there is an error during inference. Error Message: ${error}`}
+                    { role: "assistant", content: `It seems there is an error during inference. Error Message: ${errorMessage}`}
                 ]);
                 setWaitFlag(false);
             }
