@@ -80,267 +80,93 @@ export function ConfigScreen() {
         set_seed,
     } = useContext(AppContext);
     
+    function renderSlider(
+        name: string,
+        value: number,
+        setValue: React.Dispatch<React.SetStateAction<number>>,
+        minVal: number,
+        maxVal: number,
+        step: number) {
+        return (
+            <View style={pageStyle.div}>
+                <Text style={pageStyle.title}>{name}</Text>
+                <View style={pageStyle.nested_div}>
+                    <SliderBar
+                        value={value}
+                        setValue={setValue}
+                        minimumValue={minVal}
+                        maximumValue={maxVal}
+                        step={step} />
+                </View>
+            </View>
+        );
+    }
+
+    function renderBoxInput(
+        name: string,
+        value: number,
+        onChange: React.Dispatch<React.SetStateAction<number>>,
+        units = ''
+    ) {
+        return (
+            <View style={pageStyle.div}>
+                <Text style={pageStyle.title}>{name}</Text>
+                <View style={pageStyle.nested_div}>
+                    <TextArea
+                        text={value.toString()}
+                        onChangeText={(val) => {onChange(Number(val))}}
+                        style={ParamConfigStyle}
+                    />
+                    {units != '' && <Text style={pageStyle.unit}>{units}</Text>}
+                </View>
+            </View>
+        );
+    }
+
+    function renderToggleSwitch(
+        name: string,
+        value: boolean,
+        setValue: React.Dispatch<React.SetStateAction<boolean>>
+    ) {
+        return (
+            <View style={pageStyle.div}>
+                <Text style={pageStyle.title}>{name}</Text>
+                <View style={pageStyle.nested_div}>
+                    <ToggleSwitch
+                        isEnabled={value}
+                        setIsEnabled={setValue}
+                    />
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6', paddingLeft: 5, paddingRight: 5 }}>
             <Text style={{fontSize: 24, textAlign: 'center', color:'#5C5470', fontWeight: 'bold', marginBottom: 50}}>Adjust inference parameters:</Text>
             <ScrollView contentContainerStyle={{ paddingTop: 0 }}>
-                {/* {RAG Top K} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>RAG (Top K)</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                            text={rag_top_k.toString()}
-                            onChangeText={(val) => {set_rag_top_k(Number(val))}}
-                            style={ParamConfigStyle}
-                        />
-                        <Text style={pageStyle.unit}>chunks</Text>
-                    </View>
-                </View>
-                {/* {RAG Top N} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>RAG (Top N)</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                            text={rag_top_n.toString()}
-                            onChangeText={(val) => {set_rag_top_n(Number(val))}}
-                            style={ParamConfigStyle}
-                        />
-                        <Text style={pageStyle.unit}>chunks</Text>
-                    </View>
-                </View>
-                {/* {Temperature} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Temperature</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={temperature}
-                            setValue={set_temperature}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Context Window} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Context window</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                            text={n_ctx.toString()}
-                            onChangeText={(val) => {set_n_ctx(Number(val))}}
-                            style={ParamConfigStyle}
-                        />
-                        <Text style={pageStyle.unit}>tokens</Text>
-                    </View>
-                </View>
-                {/* {Number of prediction tokens} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Num Predict</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                            text={n_predict.toString()}
-                            onChangeText={(val) => {set_n_predict(Number(val))}}
-                            style={ParamConfigStyle}
-                        />
-                        <Text style={pageStyle.unit}>tokens</Text>
-                    </View>
-                </View>
-                {/* {Num GPU layers} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Num GPU layers</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                                text={n_gpu_layers.toString()}
-                                onChangeText={(val) => {set_n_gpu_layers(Number(val))}}
-                                style={ParamConfigStyle}
-                            />
-                    </View>
-                </View>
-                {/* {Flash attention} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Flash attention</Text>
-                    <View style={pageStyle.nested_div}>
-                        <ToggleSwitch
-                            isEnabled={flash_attn}
-                            setIsEnabled={set_flash_attn}
-                        />
-                    </View>
-                </View>
-                {/* {Top k} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Top K</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={top_k}
-                            setValue={set_top_k}
-                            minimumValue={1}
-                            maximumValue={128}
-                            step={1} />
-                    </View>
-                </View>
-                {/* {Top P} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Top P</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={top_p}
-                            setValue={set_top_p}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Min P} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Min P</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={min_p}
-                            setValue={set_min_p}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {XTC threshold} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>XTC threshold</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={xtc_threshold}
-                            setValue={set_xtc_threshold}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {XTC probability} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>XTC probability</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={xtc_probability}
-                            setValue={set_xtc_probability}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Typical P} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Typical P</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={typical_p}
-                            setValue={set_typical_p}
-                            minimumValue={0.0}
-                            maximumValue={2.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Penalty last n} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Penalty last N</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={penalty_last_n}
-                            setValue={set_penalty_last_n}
-                            minimumValue={0}
-                            maximumValue={256}
-                            step={1} />
-                    </View>
-                </View>
-                {/* {Penalty repeat} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Penalty repeat</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={penalty_repeat}
-                            setValue={set_penalty_repeat}
-                            minimumValue={0.0}
-                            maximumValue={2.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Penalty freq} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Penalty freq</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={penalty_freq}
-                            setValue={set_penalty_freq}
-                            minimumValue={0.0}
-                            maximumValue={2.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Penalty present} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Penalty present</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={penalty_present}
-                            setValue={set_penalty_present}
-                            minimumValue={0.0}
-                            maximumValue={2.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Microstat tau} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Microstat tau</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={microstat_tau}
-                            setValue={set_microstat_tau}
-                            minimumValue={0}
-                            maximumValue={10}
-                            step={1} />
-                    </View>
-                </View>
-                {/* {Microstat eta} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Microstat eta</Text>
-                    <View style={pageStyle.nested_div}>
-                        <SliderBar
-                            value={microstat_eta}
-                            setValue={set_microstat_eta}
-                            minimumValue={0.0}
-                            maximumValue={1.0}
-                            step={0.01} />
-                    </View>
-                </View>
-                {/* {Penalize nl} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Penalize nl</Text>
-                    <View style={pageStyle.nested_div}>
-                        <ToggleSwitch
-                            isEnabled={penalize_nl}
-                            setIsEnabled={set_penalize_nl}
-                        />
-                    </View>
-                </View>
-                {/* {Seed} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Seed (Random: -1)</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                                text={seed.toString()}
-                                onChangeText={(val) => {set_seed(Number(val))}}
-                                style={ParamConfigStyle}
-                            />
-                    </View>
-                </View>
-                {/* {N probs} */}
-                <View style={pageStyle.div}>
-                    <Text style={pageStyle.title}>Num probs</Text>
-                    <View style={pageStyle.nested_div}>
-                        <TextArea
-                                text={n_probs.toString()}
-                                onChangeText={(val) => {set_n_probs(Number(val))}}
-                                style={ParamConfigStyle}
-                            />
-                    </View>
-                </View>
+                {renderBoxInput("RAG (Top K)", rag_top_k, set_rag_top_k, "chunks")}
+                {renderBoxInput("RAG (Top N)", rag_top_n, set_rag_top_n, "chunks")}
+                {renderSlider("Temperature", temperature, set_temperature, 0.0, 1.0, 0.01)}
+                {renderBoxInput("Context window", n_ctx, set_n_ctx, "tokens")}
+                {renderBoxInput("Num Predict", n_predict, set_n_predict, "tokens")}
+                {renderBoxInput("Num GPU layers", n_gpu_layers, set_n_gpu_layers)}
+                {renderToggleSwitch("Flash attention", flash_attn, set_flash_attn)}
+                {renderSlider("Top K", top_k, set_top_k, 1, 128, 1)}
+                {renderSlider("Top P", top_p, set_top_p, 0.0, 1.0, 0.01)}
+                {renderSlider("Min P", min_p, set_min_p, 0.0, 1.0, 0.01)}
+                {renderSlider("XTC threshold", xtc_threshold, set_xtc_threshold, 0.0, 1.0, 0.01)}
+                {renderSlider("XTC probability", xtc_probability, set_xtc_probability, 0.0, 1.0, 0.01)}
+                {renderSlider("Typical P", typical_p, set_typical_p, 0.0, 2.0, 0.01)}
+                {renderSlider("Penalty last N", penalty_last_n, set_penalty_last_n, 0, 256, 1)}
+                {renderSlider("Penalty repeat", penalty_repeat, set_penalty_repeat, 0.0, 2.0, 0.01)}
+                {renderSlider("Penalty freq", penalty_freq, set_penalty_freq, 0.0, 2.0, 0.01)}
+                {renderSlider("Penalty present", penalty_present, set_penalty_present, 0.0, 2.0, 0.01)}
+                {renderSlider("Microstat tau", microstat_tau, set_microstat_tau, 0, 10, 1)}
+                {renderSlider("Microstat eta", microstat_eta, set_microstat_eta, 0.0, 1.0, 0.01)}
+                {renderToggleSwitch("Penalize nl", penalize_nl, set_penalize_nl)}
+                {renderBoxInput("Seed (Random: -1)", seed, set_seed)}
+                {renderBoxInput("Num probs", n_probs, set_n_probs)}
                 <ChatButtonWithIcon
                     icon={<FontAwesome6 name='rotate' size={20} color={'#D8D9DA'} iconStyle="solid" />}
                     title='Reset'
