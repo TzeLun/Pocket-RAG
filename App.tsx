@@ -13,7 +13,7 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import { ChatButtonWithIcon } from './components/button';
 import { menuButtonStyle } from './components/button/style';
 import { DownloadedScreen } from './screen/downloaded';
-
+import { PaperProvider } from 'react-native-paper';
 
 function prompt() {
   return (
@@ -177,7 +177,9 @@ export default function App() {
 
     return (
       <AppContextProvider>
-        <Navigation />
+        <PaperProvider>
+          <Navigation />
+        </PaperProvider>
       </AppContextProvider>
     );
 }

@@ -179,31 +179,3 @@ export const SliderBar = ({
         </View>
     );
 };
-
-
-export interface SelectionButtonProp {
-    options: string[] | number[];
-    setValue: React.Dispatch<React.SetStateAction<number | string>>;
-}
-
-export const SelectionButton = ({options, setValue}: SelectionButtonProp) => {
-    const [onState, setOnState] = React.useState<boolean[]>(options.map((_, index) => index === 0));
-    return (
-        <View style={{flexDirection: 'row'}}>
-        {options.map((option, index) => (
-            <Pressable 
-                onPress={() => {
-                    setValue(option);
-                    setOnState((current) => {
-                        const update = current.map((_, idx) => idx === index);
-                        return (update);
-                    });
-                }
-                }
-            >
-                <Text></Text>
-            </Pressable>
-        ))}
-    </View>
-    );
-}

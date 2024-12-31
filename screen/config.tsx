@@ -6,7 +6,8 @@ import { ParamConfigStyle } from '../components/textbox/style';
 import { SliderBar, ChatButtonWithIcon } from '../components/button';
 import { ToggleSwitch } from '../components/button';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
-import { configResetButtonStyle } from '../components/button/style';
+import { configResetButtonStyle, MicrostatSettingStyle } from '../components/button/style';
+import { SegmentedButtons } from 'react-native-paper';
 
 interface pageStyleProp {
     div: StyleProp<ViewStyle>;
@@ -141,6 +142,48 @@ export function ConfigScreen() {
         );
     }
 
+    function renderMicrostatSettings() {
+        return (
+            <View style={pageStyle.div}>
+                <Text style={pageStyle.title}>Microstat</Text>
+                <View style={pageStyle.nested_div}>
+                    <SegmentedButtons
+                        value={microstat.toString()}
+                        onValueChange={(val) => {set_microstat(parseInt(val, 10))}}
+                        density='high'
+                        buttons={[
+                        {
+                            value: '0',
+                            label: 'Off',
+                            labelStyle: MicrostatSettingStyle.btnLabel,
+                            style: MicrostatSettingStyle.btn,
+                        },
+                        {
+                            value: '1',
+                            label: 'V1',
+                            labelStyle: MicrostatSettingStyle.btnLabel,
+                            style: MicrostatSettingStyle.btn,
+                        },
+                        {   value: '2',
+                            label: 'V2',
+                            labelStyle: MicrostatSettingStyle.btnLabel,
+                            style: MicrostatSettingStyle.btn,
+                        },
+                        ]}
+                        style={MicrostatSettingStyle.div}
+                        theme={{colors: {
+                            secondaryContainer: '#704264',
+                            primary: '#BB8493',
+                            outline: '#BB8493',
+                            onSurface: '#BB8493',
+                            onSecondaryContainer: '#E8BCB9'
+                        }}}
+                    />
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF0E6', paddingLeft: 5, paddingRight: 5 }}>
             <Text style={{fontSize: 24, textAlign: 'center', color:'#5C5470', fontWeight: 'bold', marginBottom: 50}}>Adjust inference parameters:</Text>
@@ -162,6 +205,7 @@ export function ConfigScreen() {
                 {renderSlider("Penalty repeat", penalty_repeat, set_penalty_repeat, 0.0, 2.0, 0.01)}
                 {renderSlider("Penalty freq", penalty_freq, set_penalty_freq, 0.0, 2.0, 0.01)}
                 {renderSlider("Penalty present", penalty_present, set_penalty_present, 0.0, 2.0, 0.01)}
+                {renderMicrostatSettings()}
                 {renderSlider("Microstat tau", microstat_tau, set_microstat_tau, 0, 10, 1)}
                 {renderSlider("Microstat eta", microstat_eta, set_microstat_eta, 0.0, 1.0, 0.01)}
                 {renderToggleSwitch("Penalize nl", penalize_nl, set_penalize_nl)}

@@ -1,5 +1,6 @@
 import { StyleSheet, StyleProp, ViewStyle, TextStyle } from "react-native";
 import { switchStyle, sliderStyle, CButtonStyle } from "./button";
+import { Style } from "react-native-paper/lib/typescript/components/List/utils";
 
 export const style = StyleSheet.create({
   Btn: {
@@ -512,3 +513,22 @@ export const closeButtonStyle: [CButtonStyle, CButtonStyle] = [
     }
   }
 ]
+
+export const MicrostatSettingStyle: {
+  div: StyleProp<ViewStyle>
+  btn: StyleProp<ViewStyle>
+  btnLabel: StyleProp<TextStyle>
+} = {
+  div: {
+    marginTop: 20,
+    width: "80%",
+  },
+  btn: {
+    height: 40,
+    justifyContent: 'center',
+    padding: 0
+  },
+  btnLabel: {
+    fontSize: 20
+  }
+}
