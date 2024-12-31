@@ -50,6 +50,7 @@ export function ChatScreen() {
         microstat_eta,
         seed,
         system_prompt,
+        selected
         } = useContext(AppContext);
 
     React.useEffect(() => {
@@ -207,10 +208,13 @@ export function ChatScreen() {
     
     return (
         <View style={{ paddingTop: 60, flex: 1, flexDirection: "column", alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#FAF0E6' }}>
-            <View style={{
-                // backgroundColor: "white",
-                height: 50, padding: 0, margin: 0,
-                width: "100%", justifyContent: "center",
+            <View style={{flexDirection: 'row', marginLeft: 20}}>
+                <View style={{width: "70%", justifyContent: 'center'}}>
+                    <Text style={{fontSize: 18, fontWeight: 'bold', color: '#61677A'}}>{selected.replace(/[-.][^-.]+\.gguf$/, "")}</Text>
+                </View>
+                <View style={{
+                height: 40, padding: 0, margin: 0,
+                width: "30%", justifyContent: "center",
                 alignItems: "flex-end"}}>
                 <ChatButtonWithIcon
                     icon={<FontAwesome6 name='pen-to-square' size={30} color={'#61677A'} iconStyle="solid" />}
@@ -228,6 +232,7 @@ export function ChatScreen() {
                             );
                             setSpeedEval('');
                         }}/>
+                </View>
             </View>
             <View style={{ 
                 width: "100%", maxWidth: 400,
