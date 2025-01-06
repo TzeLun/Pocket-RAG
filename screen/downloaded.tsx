@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import RNFS from 'react-native-fs';
+import * as RNFS from '@dr.pogodin/react-native-fs';
 import {View, ScrollView, Text, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { ChatButtonWithIcon } from "../components/button";

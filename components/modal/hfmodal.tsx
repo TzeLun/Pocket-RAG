@@ -1,6 +1,6 @@
 import {View, Modal, Text, StyleProp, ViewStyle, TextStyle, ScrollView} from 'react-native';
 import React, {useContext} from "react";
-import RNFS from 'react-native-fs';
+import * as RNFS from '@dr.pogodin/react-native-fs';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { ChatButtonWithIcon } from "../button";
 import { hfModelProp, hfModelFileProp, FS_FILEPATH, downloadModel, modelDownloadLink } from "..//model/hfmodel";

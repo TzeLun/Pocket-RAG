@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@dr.pogodin/react-native-fs": "^2.30.2",
     "@react-native-community/slider": "^4.5.5",
     "@react-native-vector-icons/common": "^11.0.0",
     "@react-native-vector-icons/fontawesome6": "^6.7.1",
@@ -22,7 +23,6 @@
     "react": "18.3.1",
     "react-native": "0.76.3",
     "react-native-dropdown-picker": "^5.4.6",
-    "react-native-fs": "^2.20.0",
     "react-native-pager-view": "^6.6.1",
     "react-native-paper": "^5.12.5",
     "react-native-safe-area-context": "^4.14.0",

@@ -1,5 +1,5 @@
 import React from "react";
-import RNFS from 'react-native-fs';
+import * as RNFS from '@dr.pogodin/react-native-fs';
 import {View, ScrollView, Text, Linking, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { TextArea } from "../components/textbox";
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
