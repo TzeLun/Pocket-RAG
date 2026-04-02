@@ -6,6 +6,20 @@ A React Native mobile application that runs a Small Language Model (SLM) entirel
 
 Most AI chatbot apps rely on cloud inference. This app takes a different approach — the language model runs locally on your Android or iOS device using [llama.rn](https://github.com/mybigday/llama.rn), with no data sent to any LLM provider. A separate RAG server (which you host or connect to) is called to retrieve relevant context before each inference, grounding the model's responses in your own knowledge base.
 
+**Demo**
+
+<p align="center">
+  <img src="./images/image1.jpg" width="20%" />
+  <img src="./images/image2.jpg" width="20%" />
+  <img src="./images/image3.jpg" width="20%" />
+  <img src="./images/image4.jpg" width="20%" />
+</p>
+<p align="center">
+  <img src="./images/image5.jpg" width="20%" />
+  <img src="./images/image6.jpg" width="20%" />
+  <img src="./images/image7.jpg" width="20%" />
+</p>
+
 **Typical flow:**
 1. User sends a message
 2. App calls your RAG endpoint with the question → receives relevant context
