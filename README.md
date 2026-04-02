@@ -1,4 +1,4 @@
-# SLM RAG Chatbot
+# Pocket-RAG
 
 A React Native mobile application that runs a Small Language Model (SLM) entirely on-device and augments its responses with context retrieved from a custom RAG (Retrieval-Augmented Generation) API endpoint.
 
