@@ -2,7 +2,7 @@ import axios from "axios"
 import {TextArea} from "../components/textbox/textbox";
 import React, {useContext, useRef} from "react";
 import { invoke } from "../components/model/llama-rn";
-import { Text, View, ScrollView, Image } from "react-native";
+import { Text, View, ScrollView, Image, ActivityIndicator } from "react-native";
 import { chatAreaStyle } from "../components/textbox/style";
 import { ChatButtonWithIcon } from "../components/button";
 import { AppContext } from "../state/state";
@@ -16,6 +16,7 @@ import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 export function ChatScreen() {
     const scrollViewRef = useRef<ScrollView>(null);
     const [waitFlag, setWaitFlag] = React.useState(false);
+    const [thinking, setThinking] = React.useState(false);
     const [text, onChangeText] = React.useState('');
     const [message, setMessage] = React.useState<MessageType[]>([
         {
@@ -27,8 +28,8 @@ export function ChatScreen() {
         
     const {
         endpoint,
-        rag_top_k,
-        rag_top_n,
+        ragHeaders,
+        ragBodyFields,
         model,
         stop,
         n_predict,
@@ -109,17 +110,25 @@ export function ChatScreen() {
         if (endpoint != null) {
             try {
                 setSpeedEval('');
+                setThinking(true);
                 setMessage((prevMsg) => [
                     ...prevMsg,
                     { role: "user", content: text}
                 ]);
                 onChangeText('');
 
-                const response = await axios.post(`${endpoint}`, {
-                    "question": text,
-                    "top_k": rag_top_k,
-                    "top_n": rag_top_n
+                const headersObj: Record<string, string> = {};
+                ragHeaders.forEach(h => { if (h.key.trim()) headersObj[h.key.trim()] = h.value; });
+
+                const body: Record<string, any> = { question: text };
+                ragBodyFields.forEach(f => {
+                    if (f.key.trim()) {
+                        const num = Number(f.value);
+                        body[f.key.trim()] = f.value !== '' && !isNaN(num) ? num : f.value;
+                    }
                 });
+
+                const response = await axios.post(`${endpoint}`, body, { headers: headersObj });
                 const user_prompt = `Question: ${text}\n\n\nContext: ${response.data['context']}`;
                 console.log(`Retrieved context:\n\n${response.data['context']}`)
                 if (!completionParams.messages) { 
@@ -139,6 +148,7 @@ export function ChatScreen() {
                 )
 
                 const streamCallback = (data: any) => {
+                        setThinking(false);
                         setTimeout(() => {
                             setMessage((prevMsg) => {
                                 const lastMessage = prevMsg[prevMsg.length - 1];
@@ -169,6 +179,7 @@ export function ChatScreen() {
                 setSpeedEval(`Prompt: ${slm_response.timings.prompt_n} tokens, Prediction: ${slm_response.timings.predicted_n} tokens.\nPrompt rate: ${slm_response.timings.prompt_per_second.toFixed(2)} token/s, Prediction rate: ${slm_response.timings.predicted_per_second.toFixed(2)} token/s`);
                 setWaitFlag(false);
             } catch(error) {
+                setThinking(false);
                 console.log(`Error fetching context from ${endpoint}`);
                 let errorMessage = "An unknown error occurred during inference.";
                 if (axios.isAxiosError(error)) {
@@ -249,6 +260,12 @@ export function ChatScreen() {
                     />
 
                 ))}
+                {thinking && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginVertical: 8 }}>
+                        <ActivityIndicator size="small" color="#BB8493" />
+                        <Text style={{ marginLeft: 8, color: '#BB8493', fontSize: 13 }}>Thinking...</Text>
+                    </View>
+                )}
                 <Text style={{ fontSize: 10, textAlign: "left", color: "#61677A", marginBottom: 10, marginLeft: 10}}>{speedEval}</Text>
                 </ScrollView>
             </View>

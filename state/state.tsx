@@ -1,15 +1,24 @@
 import React, { createContext } from 'react';
 import { LlamaContext } from 'llama.rn';
 import { hfModelDownloadStateManager } from '../components/model/hfmodel';
+import * as RNFS from '@dr.pogodin/react-native-fs';
+
+const RAG_SETTINGS_PATH = `${RNFS.DocumentDirectoryPath}/rag_settings.json`;
+
+export type RAGParam = { id: string; key: string; value: string };
 
 export interface AppContextProp {
     // For RAG API endpoint
     endpoint: string | null;
     rag_top_k: number;
     rag_top_n: number;
+    ragHeaders: RAGParam[];
+    ragBodyFields: RAGParam[];
     setEndpoint: React.Dispatch<React.SetStateAction<string | null>>;
     set_rag_top_k: React.Dispatch<React.SetStateAction<number>>;
     set_rag_top_n: React.Dispatch<React.SetStateAction<number>>;
+    setRagHeaders: React.Dispatch<React.SetStateAction<RAGParam[]>>;
+    setRagBodyFields: React.Dispatch<React.SetStateAction<RAGParam[]>>;
 
     // For Llama.rn initialization config
     model: LlamaContext | null; // eventually this should be llama context not string
@@ -81,8 +90,12 @@ export const defaultState: AppContextProp = {
     setEndpoint: () => {},
     rag_top_k: 20,
     rag_top_n: 5,
+    ragHeaders: [],
+    ragBodyFields: [],
     set_rag_top_k: () => {},
     set_rag_top_n: () => {},
+    setRagHeaders: () => {},
+    setRagBodyFields: () => {},
     model: null,
     n_ctx: 2048,
     n_gpu_layers: 1,
@@ -147,6 +160,8 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
     const [endpoint, setEndpoint] = React.useState<string | null>(null);
     const [rag_top_k, set_rag_top_k] = React.useState<number>(20);
     const [rag_top_n, set_rag_top_n] = React.useState<number>(5);
+    const [ragHeaders, setRagHeaders] = React.useState<RAGParam[]>([]);
+    const [ragBodyFields, setRagBodyFields] = React.useState<RAGParam[]>([]);
     const [model, set_model] = React.useState<LlamaContext | null>(null);
     const [n_ctx, set_n_ctx] = React.useState<number>(2048);
     const [n_gpu_layers, set_n_gpu_layers] = React.useState<number>(1);
@@ -177,14 +192,43 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({chi
     const [selected, setSelected] = React.useState('');
     const [downloadManager, setDownloadManager] = React.useState({});
 
+    // Guard: only save after the initial load has completed
+    const ragLoaded = React.useRef(false);
+
+    // Load persisted RAG settings on first mount
+    React.useEffect(() => {
+        RNFS.exists(RAG_SETTINGS_PATH).then(exists => {
+            if (!exists) { ragLoaded.current = true; return; }
+            RNFS.readFile(RAG_SETTINGS_PATH, 'utf8').then(raw => {
+                try {
+                    const saved = JSON.parse(raw);
+                    if (saved.endpoint !== undefined) setEndpoint(saved.endpoint);
+                    if (Array.isArray(saved.ragHeaders)) setRagHeaders(saved.ragHeaders);
+                    if (Array.isArray(saved.ragBodyFields)) setRagBodyFields(saved.ragBodyFields);
+                } catch (_) {}
+            }).catch(() => {}).finally(() => { ragLoaded.current = true; });
+        }).catch(() => { ragLoaded.current = true; });
+    }, []);
+
+    // Save RAG settings whenever they change, but never before load finishes
+    React.useEffect(() => {
+        if (!ragLoaded.current) return;
+        const data = JSON.stringify({ endpoint, ragHeaders, ragBodyFields });
+        RNFS.writeFile(RAG_SETTINGS_PATH, data, 'utf8').catch(() => {});
+    }, [endpoint, ragHeaders, ragBodyFields]);
+
     return (
         <AppContext.Provider value= {{
             endpoint,
             setEndpoint,
             rag_top_k,
             rag_top_n,
+            ragHeaders,
+            ragBodyFields,
             set_rag_top_k,
             set_rag_top_n,
+            setRagHeaders,
+            setRagBodyFields,
             model,
             n_ctx,
             n_gpu_layers,
