@@ -55,7 +55,7 @@ Required tools:
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
-cd SLM_RAG_Chatbot
+cd Pocket-RAG
 
 # 2. Install JS dependencies
 npm install
