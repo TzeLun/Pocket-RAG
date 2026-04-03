@@ -190,7 +190,7 @@ SLM_RAG_Chatbot/
 |---------|---------|
 | `llama.rn` | On-device GGUF model inference |
 | `@dr.pogodin/react-native-fs` | File system access (model storage, settings persistence) |
-| `axios` | HTTP calls to the RAG endpoint |
+| `axios` | HTTP calls to the RAG endpoint. **IMPORTANT: this project was developed in 2025 with axios v1.7.8, please avoid v1.14.1 or v0.30.4 (remote trojan hacks)** |
 | `@react-navigation/native` | Screen navigation |
 | `react-native-paper` | Segmented button UI component |
 
