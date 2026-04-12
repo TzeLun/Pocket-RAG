@@ -25,6 +25,9 @@ jobs:
       - name: Install JS Dependencies
         run: npm install
 
+      - name: Download llama.rn native artifacts
+        run: node ./node_modules/llama.rn/install/download-native-artifacts.js
+
       - name: Install CocoaPods Dependencies
         working-directory: ios
         run: pod install
@@ -53,5 +56,4 @@ jobs:
             -scheme "$scheme" \
             -"$filetype_parameter" "$file_to_build" \
             -destination 'generic/platform=iOS Simulator' \
-            EXCLUDED_ARCHS=x86_64 \
             | xcpretty && exit ${PIPESTATUS[0]}
