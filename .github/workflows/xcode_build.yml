@@ -25,8 +25,16 @@ jobs:
       - name: Install JS Dependencies
         run: npm install
 
-      - name: Download llama.rn native artifacts
-        run: node ./node_modules/llama.rn/install/download-native-artifacts.js
+      # - name: Download llama.rn native artifacts
+      #   run: node ./node_modules/llama.rn/install/download-native-artifacts.js
+      - name: Find llama.rn scripts
+        run: |
+          echo "=== package.json scripts ==="
+          cat node_modules/llama.rn/package.json | grep -A 20 '"scripts"'
+          echo "=== root files ==="
+          ls node_modules/llama.rn/
+          echo "=== scripts dir (if exists) ==="
+          ls node_modules/llama.rn/scripts/ 2>/dev/null || echo "no scripts dir"
 
       - name: Install CocoaPods Dependencies
         working-directory: ios
