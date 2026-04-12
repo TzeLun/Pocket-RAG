@@ -53,6 +53,5 @@ jobs:
             -scheme "$scheme" \
             -"$filetype_parameter" "$file_to_build" \
             -destination 'generic/platform=iOS Simulator' \
-            -arch arm64 \
             EXCLUDED_ARCHS=x86_64 \
             | xcpretty && exit ${PIPESTATUS[0]}
