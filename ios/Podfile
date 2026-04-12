@@ -38,8 +38,9 @@ target 'SLM_RAG_Chatbot' do
     )
     # Exclude x86_64 for pods that don't support Intel simulator (e.g. llama.rn)
     installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
+      target.build_configurations.each do |build_config|
         config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'x86_64'
       end
+    end
   end
 end
